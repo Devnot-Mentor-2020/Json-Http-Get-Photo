@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http_get_photos/models/photo_model.dart';
+import 'package:http_get_photos/photo.dart';
 
 void main() {
   runApp(MyApp());

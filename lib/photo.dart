@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 
@@ -11,9 +12,12 @@ class PhotoModel extends StatefulWidget {
 }
 
 class _PhotoModelState extends State<PhotoModel>{
+
+  String url="https://jsonplaceholder.typicode.com/photos";
+  
   Future<List<Photo>> _getPhoto() async {
-  var response = await http.get("https://jsonplaceholder.typicode.com/photos");  
-  if (response.statusCode==200){
+  var response = await http.get(url);  
+  if (HttpStatus.ok==200){
     return (json.decode(response.body)as List)
     .map((e) => Photo.fromJsonMap(e))
     .toList();
@@ -28,26 +32,50 @@ class _PhotoModelState extends State<PhotoModel>{
       appBar: AppBar( title: Text("Json Api "),),
       body: FutureBuilder(
         future: _getPhoto(),
-        builder: 
-        (BuildContext context, AsyncSnapshot<List<Photo>> snapshot) {
-          if(snapshot.hasData){
-            return ListView.builder(
-              itemCount: snapshot.data.length,
-              itemBuilder: (context, index){
-                return ListTile(
-                  title: Text(snapshot.data[index].title),
-                  leading: CircleAvatar(backgroundImage: NetworkImage(snapshot.data[index].url)),
-                  
-                  );
-                
-              });
-           }
-
-           else {
-             return Center(child: CircularProgressIndicator(),);
-           }
-        }),
+        builder: builder),
       
     );
   }
-}
+
+  Widget builder(BuildContext context, AsyncSnapshot<List<Photo>> snapshot) {
+        
+        switch(snapshot.connectionState){
+          case ConnectionState.waiting:
+            return Center(child: CircularProgressIndicator());
+          case ConnectionState.done:
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index){
+                return Card(
+                  child: ListTile(
+                    title: Text(snapshot.data[index].title),
+                    leading: CircleAvatar(backgroundImage: NetworkImage(snapshot.data[index].url)),               
+                    ),
+                );
+              }
+            );
+        }
+        }
+        
+
+
+        /*if(snapshot.hasData){
+          return  ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index){
+                return Card(
+                  child: ListTile(
+                    title: Text(snapshot.data[index].title),
+                    leading: CircleAvatar(backgroundImage: NetworkImage(snapshot.data[index].url)),               
+                    ),
+                );
+              },
+          );
+         }  
+         else {
+           return Center(child: CircularProgressIndicator(),);
+         }*/
+   }
+ 
+ 
+ 
